@@ -1,6 +1,5 @@
+// Node.js 18+ 內建 fetch，完全不用 node-fetch
 const fs = require("fs");
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const MODE = process.env.MODE || "fast";
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
@@ -76,7 +75,9 @@ async function run() {
         score,
         category
       });
-    } catch (e) {}
+    } catch (e) {
+      // 個別幣錯誤直接跳過，不影響整體
+    }
   }
 
   const out = {
