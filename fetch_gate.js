@@ -3,13 +3,14 @@ const fs = require("fs");
 
 const MODE = process.env.MODE || "fast";
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
-const LIMIT = 60;
+const LIMIT = 120; // 一定要 >= 100
 
 // ===== utils =====
 const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
 const std = arr => {
   const m = mean(arr);
-  return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length);
+  const v = arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length;
+  return Math.sqrt(v);
 };
 
 // ===== Gate API =====
@@ -36,63 +37,51 @@ function classify(atr) {
   return "主流";
 }
 
-// ===== main =====
 async function run() {
   const tickers = await fetchTickers();
 
   const top = tickers
     .filter(t => t.contract.endsWith("USDT"))
     .sort((a, b) => Number(b.volume_24h) - Number(a.volume_24h))
-    .slice(0, 80);
+    .slice(0, 60);
 
   const items = [];
 
   for (const t of top) {
     try {
       let candles = await fetchCandles(t.contract);
-      if (!candles || candles.length < 20) continue;
+      if (!candles || candles.length < 50) continue;
 
-      // ❗❗關鍵修正：時間順序反轉
+      // 🔴 關鍵：Gate 是 新 → 舊，一定要反轉
       candles = candles.reverse();
 
-      // Gate futures candlestick:
-      // [ time, volume, close, high, low, open ]
       const closes = candles.map(c => Number(c[2]));
-      const vols   = candles.map(c => Number(c[1]));
-
       const ret = closes.slice(1).map((v, i) =>
         (v - closes[i]) / closes[i]
       );
 
-      const rStd = std(ret);
-      const vStd = std(vols);
+      if (ret.length < 20) continue;
 
-      if (!isFinite(rStd) || !isFinite(vStd) || rStd === 0 || vStd === 0) {
-        continue;
-      }
+      const rStd = std(ret);
+      if (!isFinite(rStd) || rStd === 0) continue;
 
       const rz = (ret.at(-1) - mean(ret)) / rStd;
-      const vz = (vols.at(-1) - mean(vols)) / vStd;
-
       const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
 
-      let score =
-        Math.abs(rz) * 40 +
-        Math.abs(vz) * 40 +
-        atr * 200;
-
-      if (category === "瘋狗") score *= 0.7;
+      const score = Math.round(
+        Math.abs(rz) * 60 + atr * 300
+      );
 
       items.push({
         symbol: t.contract,
         direction: rz > 0 ? "long" : "short",
-        score: Math.round(score),
+        score,
         category
       });
 
     } catch (e) {
-      // skip
+      // 不吃掉錯誤你也會看到，但這裡先保持安靜
     }
   }
 
