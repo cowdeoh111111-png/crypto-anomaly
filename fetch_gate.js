@@ -30,7 +30,6 @@ async function fetchCandles(symbol) {
   );
 }
 
-// ===== 分類 =====
 function classify(atr) {
   if (atr > 0.05) return "瘋狗";
   if (atr > 0.02) return "山寨";
@@ -50,13 +49,14 @@ async function run() {
 
   for (const t of top) {
     try {
-      const candles = await fetchCandles(t.contract);
-      if (!Array.isArray(candles) || candles.length < 30) continue;
+      let candles = await fetchCandles(t.contract);
+      if (!candles || candles.length < 20) continue;
 
-      /**
-       * Gate USDT futures candlestick:
-       * [ time, volume, close, high, low, open ]
-       */
+      // ❗❗關鍵修正：時間順序反轉
+      candles = candles.reverse();
+
+      // Gate futures candlestick:
+      // [ time, volume, close, high, low, open ]
       const closes = candles.map(c => Number(c[2]));
       const vols   = candles.map(c => Number(c[1]));
 
@@ -83,17 +83,16 @@ async function run() {
         atr * 200;
 
       if (category === "瘋狗") score *= 0.7;
-      score = Math.round(score);
 
       items.push({
         symbol: t.contract,
         direction: rz > 0 ? "long" : "short",
-        score,
+        score: Math.round(score),
         category
       });
 
     } catch (e) {
-      // 單幣錯誤直接跳過
+      // skip
     }
   }
 
