@@ -1,28 +1,34 @@
+// Node.js 18+ (GitHub Actions OK)
 const fs = require("fs");
 
 const MODE = process.env.MODE || "fast";
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
 const LIMIT = 60;
 
+// ===== utils =====
 const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
 const std = arr => {
   const m = mean(arr);
-  return Math.sqrt(mean(arr.map(x => (x - m) ** 2))) || 1;
+  const v = arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length;
+  return Math.sqrt(v);
 };
 
-async function fetchTickers() {
-  const res = await fetch(
-    "https://api.gateio.ws/api/v4/futures/usdt/tickers"
-  );
+// ===== Gate API =====
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
+async function fetchTickers() {
+  return fetchJSON("https://api.gateio.ws/api/v4/futures/usdt/tickers");
+}
+
 async function fetchCandles(symbol) {
-  const url =
-    "https://api.gateio.ws/api/v4/futures/usdt/candlesticks" +
-    `?contract=${symbol}&interval=${INTERVAL}&limit=${LIMIT}`;
-  const res = await fetch(url);
-  return res.json();
+  return fetchJSON(
+    `https://api.gateio.ws/api/v4/futures/usdt/candlesticks` +
+    `?contract=${symbol}&interval=${INTERVAL}&limit=${LIMIT}`
+  );
 }
 
 function classify(atr) {
@@ -32,44 +38,49 @@ function classify(atr) {
 }
 
 async function run() {
-  console.log("VERSION: score-safe-v2");
-
   const tickers = await fetchTickers();
 
   const top = tickers
     .filter(t => t.contract.endsWith("USDT"))
     .sort((a, b) => Number(b.volume_24h) - Number(a.volume_24h))
-    .slice(0, 100);
+    .slice(0, 80);
 
   const items = [];
 
   for (const t of top) {
     try {
       const candles = await fetchCandles(t.contract);
-      if (!candles || candles.length < 30) continue;
+      if (!candles || candles.length < 20) continue;
 
+      // Gate 正確欄位
       const closes = candles.map(c => Number(c[2]));
-      const vols = candles.map(c => Number(c[5]));
+      const vols   = candles.map(c => Number(c[1]));
 
-      const ret = closes.map((v, i) =>
-        i === 0 ? 0 : (v - closes[i - 1]) / closes[i - 1]
+      const ret = closes.slice(1).map((v, i) =>
+        (v - closes[i]) / closes[i]
       );
 
-      const rz = (ret.at(-1) - mean(ret)) / std(ret);
-      const vz = (vols.at(-1) - mean(vols)) / std(vols);
-      const atr = Math.abs(ret.at(-1));
+      const rStd = std(ret);
+      const vStd = std(vols);
 
+      if (!isFinite(rStd) || !isFinite(vStd) || rStd === 0 || vStd === 0) {
+        continue;
+      }
+
+      const rz = (ret.at(-1) - mean(ret)) / rStd;
+      const vz = (vols.at(-1) - mean(vols)) / vStd;
+
+      const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
 
-      let score =
+      let score = Math.round(
         Math.abs(rz) * 40 +
         Math.abs(vz) * 40 +
-        atr * 200;
+        atr * 200
+      );
 
-      if (category === "瘋狗") score *= 0.7;
-      score = Math.round(score);
-
-      if (!isFinite(score) || score < 60) continue;
+      if (category === "瘋狗") score = Math.round(score * 0.7);
+      if (score < 60) continue;
 
       items.push({
         symbol: t.contract,
@@ -78,7 +89,9 @@ async function run() {
         category
       });
 
-    } catch {}
+    } catch (e) {
+      // 單一幣錯誤直接略過
+    }
   }
 
   const out = {
