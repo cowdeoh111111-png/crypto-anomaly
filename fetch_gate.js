@@ -43,7 +43,6 @@ function classify(atr) {
 async function run() {
   const tickers = await fetchTickers();
 
-  // 取成交量前 80
   const top = tickers
     .filter(t => t.contract.endsWith("USDT"))
     .sort((a, b) => Number(b.volume_24h) - Number(a.volume_24h))
@@ -54,23 +53,21 @@ async function run() {
   for (const t of top) {
     try {
       const candles = await fetchCandles(t.contract);
-
-      // ❗ Gate 常見問題：回空 or 量有但價格不動
-      if (!Array.isArray(candles) || candles.length < 30) continue;
+      if (!candles || candles.length < 20) continue;
 
       /**
-       * Gate futures candlestick（實測可用）
+       * Gate USDT 永續期貨 K 線格式
        * c[0] time
        * c[1] volume
        * c[2] close
+       * c[3] high
+       * c[4] low
+       * c[5] open
        */
       const closes = candles.map(c => Number(c[2]));
       const vols   = candles.map(c => Number(c[1]));
 
-      // ❗ 關鍵：價格幾乎沒動的幣直接丟
-      const uniqClose = new Set(closes);
-      if (uniqClose.size < 5) continue;
-
+      // 報酬率
       const ret = closes.slice(1).map((v, i) =>
         (v - closes[i]) / closes[i]
       );
@@ -78,20 +75,22 @@ async function run() {
       const rStd = std(ret);
       const vStd = std(vols);
 
-      // 防呆（避免 NaN / 無限）
-      if (!isFinite(rStd) || !isFinite(vStd) || rStd === 0 || vStd === 0) {
-        continue;
-      }
+      // 防呆（不要再全部 skip）
+      if (!isFinite(rStd) || rStd === 0) continue;
 
       const rz = (ret.at(-1) - mean(ret)) / rStd;
-      const vz = (vols.at(-1) - mean(vols)) / vStd;
+
+      // 成交量 Z（成交量不穩定時允許）
+      const vz = vStd > 0
+        ? (vols.at(-1) - mean(vols)) / vStd
+        : 0;
 
       const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
 
       let score =
         Math.abs(rz) * 40 +
-        Math.abs(vz) * 40 +
+        Math.abs(vz) * 30 +
         atr * 200;
 
       if (category === "瘋狗") score *= 0.7;
@@ -105,7 +104,7 @@ async function run() {
       });
 
     } catch (e) {
-      // 單一幣錯誤直接跳過
+      // 單一幣錯誤直接略過
     }
   }
 
