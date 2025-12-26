@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Crypto Anomaly</title>
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: monospace;
+      padding: 20px;
+    }
+    h1 { color: #58a6ff; }
+    pre {
+      background: #161b22;
+      padding: 15px;
+      overflow: auto;
+      max-height: 400px;
+    }
+    button {
+      margin-right: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Crypto Anomaly Monitor</h1>
+
+<button onclick="loadData('fast')">Fast</button>
+<button onclick="loadData('slow')">Slow</button>
+
+<pre id="output">點上方按鈕載入資料</pre>
+
+<script>
+async function loadData(type) {
+  const url = type === 'fast'
+    ? 'https://raw.githubusercontent.com/cowdeoh111111-png/crypto-anomaly/main/data_fast.json'
+    : 'https://raw.githubusercontent.com/cowdeoh111111-png/crypto-anomaly/main/data_slow.json';
+
+  document.getElementById('output').textContent = 'Loading...';
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    document.getElementById('output').textContent =
+      JSON.stringify(json, null, 2);
+  } catch (e) {
+    document.getElementById('output').textContent = '讀取失敗';
+  }
+}
+</script>
+
+</body>
+</html>
