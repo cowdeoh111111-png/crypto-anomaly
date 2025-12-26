@@ -1,0 +1,25 @@
+name: Update Gate Data
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: |
+          MODE=fast node fetch_gate.js
+          MODE=slow node fetch_gate.js
+      - run: |
+          git config user.name "bot"
+          git config user.email "bot@github"
+          git add data_*.json
+          git commit -m "update market data" || echo "no change"
+          git push
