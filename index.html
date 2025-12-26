@@ -1,27 +1,42 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>Crypto Anomaly</title>
+  <meta charset="UTF-8" />
+  <title>Crypto Anomaly Monitor</title>
   <style>
     body {
-      background: #0d1117;
-      color: #e6edf3;
+      background: #0b0f14;
+      color: #e5e7eb;
       font-family: monospace;
       padding: 20px;
     }
-    h1 { color: #58a6ff; }
-    pre {
-      background: #161b22;
-      padding: 15px;
-      overflow: auto;
-      max-height: 400px;
+    h1 {
+      color: #60a5fa;
     }
     button {
       margin-right: 10px;
-      padding: 6px 12px;
+      padding: 6px 14px;
+      font-size: 14px;
       cursor: pointer;
     }
+    table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border-bottom: 1px solid #1f2937;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #111827;
+    }
+    .long { color: #22c55e; }
+    .short { color: #ef4444; }
+    .main { color: #93c5fd; }
+    .alt { color: #facc15; }
+    .dog { color: #fb7185; }
   </style>
 </head>
 <body>
@@ -31,27 +46,60 @@
 <button onclick="loadData('fast')">Fast</button>
 <button onclick="loadData('slow')">Slow</button>
 
-<pre id="output">點上方按鈕載入資料</pre>
+<div id="info"></div>
+
+<table id="table" style="display:none">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Direction</th>
+      <th>Score</th>
+      <th>Category</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <script>
 async function loadData(type) {
-  const url = type === 'fast'
-    ? 'https://raw.githubusercontent.com/cowdeoh111111-png/crypto-anomaly/main/data_fast.json'
-    : 'https://raw.githubusercontent.com/cowdeoh111111-png/crypto-anomaly/main/data_slow.json';
+  const url =
+    type === 'fast'
+      ? `data_fast.json?t=${Date.now()}`
+      : `data_slow.json?t=${Date.now()}`;
 
-  document.getElementById('output').textContent = 'Loading...';
+  document.getElementById('info').textContent = 'Loading...';
 
   try {
     const res = await fetch(url);
-    const json = await res.json();
-    document.getElementById('output').textContent =
-      JSON.stringify(json, null, 2);
+    const data = await res.json();
+
+    document.getElementById('info').textContent =
+      `Updated: ${data.updated}`;
+
+    const tbody = document.querySelector('#table tbody');
+    tbody.innerHTML = '';
+
+    data.items.forEach(i => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i.symbol}</td>
+        <td class="${i.direction}">${i.direction}</td>
+        <td>${i.score}</td>
+        <td class="${
+          i.category === '主流' ? 'main' :
+          i.category === '山寨' ? 'alt' : 'dog'
+        }">${i.category}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('table').style.display = 'table';
+
   } catch (e) {
-    document.getElementById('output').textContent = '讀取失敗';
+    document.getElementById('info').textContent = '讀取失敗';
   }
 }
 </script>
 
 </body>
 </html>
-<!-- redeploy -->
