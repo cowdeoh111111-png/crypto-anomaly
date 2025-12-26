@@ -5,9 +5,9 @@ const MODE = process.env.MODE || "fast";
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
 const LIMIT = 80;
 
-// ===== 工具 =====
+// ===== utils =====
 const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
-const std = a => {
+const std  = a => {
   const m = mean(a);
   return Math.sqrt(mean(a.map(x => (x - m) ** 2)));
 };
@@ -15,7 +15,7 @@ const std = a => {
 // ===== API =====
 async function fetchJSON(url) {
   const r = await fetch(url);
-  if (!r.ok) throw new Error(r.status);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
 
@@ -28,7 +28,7 @@ async function fetchCandles(symbol) {
     `https://api.gateio.ws/api/v4/futures/usdt/candlesticks` +
     `?contract=${symbol}&interval=${INTERVAL}&limit=${LIMIT}`
   );
-  return data.reverse(); // 🔴 關鍵：轉成「舊 → 新」
+  return data.reverse(); // 轉成 舊 → 新
 }
 
 function classify(atr) {
@@ -43,7 +43,7 @@ async function run() {
   const top = tickers
     .filter(t => t.contract.endsWith("USDT"))
     .sort((a, b) => Number(b.volume_24h) - Number(a.volume_24h))
-    .slice(0, 50);
+    .slice(0, 40);
 
   const items = [];
 
@@ -58,29 +58,6 @@ async function run() {
       const rStd = std(ret);
       if (!isFinite(rStd) || rStd === 0) continue;
 
-      const rz = (ret.at(-1) - mean(ret)) / rStd;
+      const rz  = (ret.at(-1) - mean(ret)) / rStd;
       const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
-
-      const score = Math.round(Math.abs(rz) * 100 + atr * 300);
-
-      items.push({
-        symbol: t.contract,
-        direction: rz > 0 ? "long" : "short",
-        score,
-        category
-      });
-
-    } catch {}
-  }
-
-  fs.writeFileSync(
-    MODE === "fast" ? "data_fast.json" : "data_slow.json",
-    JSON.stringify({
-      updated: new Date().toLocaleString("zh-TW"),
-      items: items.sort((a, b) => b.score - a.score)
-    }, null, 2)
-  );
-}
-
-run();
