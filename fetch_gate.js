@@ -1,28 +1,32 @@
-import fs from "fs";
-import fetch from "node-fetch";
+const fs = require("fs");
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const MODE = process.env.MODE || "fast";
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
 const LIMIT = 60;
 
-const mean = arr => arr.reduce((a,b)=>a+b,0) / arr.length;
-const std  = arr => {
+// ===== 工具 =====
+const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+const std = arr => {
   const m = mean(arr);
-  return Math.sqrt(mean(arr.map(x => (x-m)**2)));
+  return Math.sqrt(mean(arr.map(x => (x - m) ** 2)));
 };
 
+// ===== Gate API =====
 async function fetchTickers() {
-  const url = "https://api.gateio.ws/api/v4/futures/usdt/tickers";
-  const res = await fetch(url);
-  return await res.json();
+  const res = await fetch(
+    "https://api.gateio.ws/api/v4/futures/usdt/tickers"
+  );
+  return res.json();
 }
 
 async function fetchCandles(symbol) {
   const url =
-    `https://api.gateio.ws/api/v4/futures/usdt/candlesticks` +
+    "https://api.gateio.ws/api/v4/futures/usdt/candlesticks" +
     `?contract=${symbol}&interval=${INTERVAL}&limit=${LIMIT}`;
   const res = await fetch(url);
-  return await res.json();
+  return res.json();
 }
 
 function classify(atr) {
@@ -36,29 +40,31 @@ async function run() {
 
   const top = tickers
     .filter(t => t.contract.endsWith("USDT"))
-    .sort((a,b)=>Number(b.volume_24h)-Number(a.volume_24h))
-    .slice(0,100);
+    .sort((a, b) => Number(b.volume_24h) - Number(a.volume_24h))
+    .slice(0, 100);
 
   const items = [];
 
   for (const t of top) {
     try {
       const candles = await fetchCandles(t.contract);
-      if (candles.length < 20) continue;
+      if (!candles || candles.length < 20) continue;
 
-      const closes = candles.map(c=>Number(c[2]));
-      const vols   = candles.map(c=>Number(c[5]));
+      const closes = candles.map(c => Number(c[2]));
+      const vols = candles.map(c => Number(c[5]));
 
-      const ret = closes.map((v,i)=> i===0 ? 0 : (v-closes[i-1])/closes[i-1]);
+      const ret = closes.map((v, i) =>
+        i === 0 ? 0 : (v - closes[i - 1]) / closes[i - 1]
+      );
+
       const rz = (ret.at(-1) - mean(ret)) / std(ret);
       const vz = (vols.at(-1) - mean(vols)) / std(vols);
 
       const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
 
-      let score = Math.min(
-        100,
-        Math.round(Math.abs(rz)*40 + Math.abs(vz)*40 + atr*200)
+      let score = Math.round(
+        Math.abs(rz) * 40 + Math.abs(vz) * 40 + atr * 200
       );
 
       if (category === "瘋狗") score = Math.round(score * 0.7);
@@ -70,12 +76,12 @@ async function run() {
         score,
         category
       });
-    } catch {}
+    } catch (e) {}
   }
 
   const out = {
     updated: new Date().toLocaleString("zh-TW"),
-    items: items.sort((a,b)=>b.score-a.score)
+    items: items.sort((a, b) => b.score - a.score)
   };
 
   fs.writeFileSync(
