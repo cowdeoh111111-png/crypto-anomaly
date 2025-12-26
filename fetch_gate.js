@@ -1,20 +1,19 @@
-// Node.js 18+（GitHub Actions 內建 fetch 可用）
+// Node.js 18+（GitHub Actions 內建 fetch）
 const fs = require("fs");
 
-const MODE = process.env.MODE || "fast";   // fast / slow
+const MODE = process.env.MODE || "fast";
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
 const LIMIT = 60;
 
-// ================= 工具 =================
+// ========= utils =========
 const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
-
 const std = arr => {
   const m = mean(arr);
   const v = arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length;
   return Math.sqrt(v);
 };
 
-// ================= Gate API =================
+// ========= Gate API =========
 async function fetchJSON(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -27,23 +26,22 @@ async function fetchTickers() {
 
 async function fetchCandles(symbol) {
   return fetchJSON(
-    "https://api.gateio.ws/api/v4/futures/usdt/candlesticks" +
+    `https://api.gateio.ws/api/v4/futures/usdt/candlesticks` +
     `?contract=${symbol}&interval=${INTERVAL}&limit=${LIMIT}`
   );
 }
 
-// ================= 分類 =================
+// ========= 分類 =========
 function classify(atr) {
   if (atr > 0.05) return "瘋狗";
   if (atr > 0.02) return "山寨";
   return "主流";
 }
 
-// ================= 主程式 =================
+// ========= 主程式 =========
 async function run() {
   const tickers = await fetchTickers();
 
-  // 取成交量前 80
   const top = tickers
     .filter(t => t.contract.endsWith("USDT"))
     .sort((a, b) => Number(b.volume_24h) - Number(a.volume_24h))
@@ -56,44 +54,24 @@ async function run() {
       const candles = await fetchCandles(t.contract);
       if (!candles || candles.length < 20) continue;
 
-      /**
-       * Gate futures candlestick 結構（實測可用）
-       * c[0] time
-       * c[1] volume
-       * c[2] close
-       */
+      // Gate futures：c[2] = close
       const closes = candles.map(c => Number(c[2]));
-      const vols   = candles.map(c => Number(c[1]));
 
       const ret = closes.slice(1).map((v, i) =>
         (v - closes[i]) / closes[i]
       );
 
       const rStd = std(ret);
-      const vStd = std(vols);
-
-      // 防呆（很重要）
-      if (!isFinite(rStd) || !isFinite(vStd) || rStd === 0 || vStd === 0) {
-        continue;
-      }
+      if (!isFinite(rStd) || rStd === 0) continue;
 
       const rz = (ret.at(-1) - mean(ret)) / rStd;
-      const vz = (vols.at(-1) - mean(vols)) / vStd;
-
       const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
 
-      // 分數（保守、穩定）
-      let score =
-        Math.abs(rz) * 40 +
-        Math.abs(vz) * 40 +
-        atr * 200;
-
-      if (category === "瘋狗") score *= 0.7;
-      score = Math.round(score);
-
-      // ❗❗關鍵：不再過濾 score
-      // if (score < 60) continue;
+      const score = Math.round(
+        Math.abs(rz) * 80 +
+        atr * 300
+      );
 
       items.push({
         symbol: t.contract,
@@ -103,7 +81,7 @@ async function run() {
       });
 
     } catch (e) {
-      // 單一幣失敗直接跳過，不影響整體
+      // 單一幣錯誤忽略
     }
   }
 
