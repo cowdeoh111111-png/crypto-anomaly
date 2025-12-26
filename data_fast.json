@@ -1,5 +1,5 @@
 {
-  "updated": "2025/12/26 下午3:58:41",
+  "updated": "2025/12/26 下午4:00:21",
   "items": [
     {
       "symbol": "ICP_USDT",
@@ -284,13 +284,13 @@
       "category": "主流"
     },
     {
-      "symbol": "APT_USDT",
+      "symbol": "LUNA_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "LUNA_USDT",
+      "symbol": "APT_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -560,13 +560,13 @@
       "category": "主流"
     },
     {
-      "symbol": "AIXBT_USDT",
+      "symbol": "CAKE_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "CAKE_USDT",
+      "symbol": "AIXBT_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"

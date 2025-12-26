@@ -1,5 +1,5 @@
 {
-  "updated": "2025/12/26 下午3:58:54",
+  "updated": "2025/12/26 下午4:00:39",
   "items": [
     {
       "symbol": "ICP_USDT",
@@ -74,25 +74,13 @@
       "category": "主流"
     },
     {
-      "symbol": "MOVE_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
       "symbol": "MBOX_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "ARB_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "TNSR_USDT",
+      "symbol": "MOVE_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -104,19 +92,19 @@
       "category": "主流"
     },
     {
-      "symbol": "JASMY_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
       "symbol": "HMSTR_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "MON_USDT",
+      "symbol": "ARB_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "JASMY_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -128,7 +116,19 @@
       "category": "主流"
     },
     {
+      "symbol": "MON_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
       "symbol": "ANIME_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "TNSR_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -170,13 +170,13 @@
       "category": "主流"
     },
     {
-      "symbol": "CRV_USDT",
+      "symbol": "ETHFI_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "ETHFI_USDT",
+      "symbol": "CRV_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -224,13 +224,13 @@
       "category": "主流"
     },
     {
-      "symbol": "ADA_USDT",
+      "symbol": "MINA_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "ME_USDT",
+      "symbol": "ADA_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -242,31 +242,13 @@
       "category": "主流"
     },
     {
-      "symbol": "MINA_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
       "symbol": "ENA_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "STRK_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "COTI_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "XRP_USDT",
+      "symbol": "ME_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -278,7 +260,19 @@
       "category": "主流"
     },
     {
+      "symbol": "COTI_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
       "symbol": "ZKP_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "XRP_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -290,19 +284,13 @@
       "category": "主流"
     },
     {
+      "symbol": "STRK_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
       "symbol": "LUNA_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "LAYER_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "BLUR_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -314,13 +302,25 @@
       "category": "主流"
     },
     {
-      "symbol": "SUI_USDT",
+      "symbol": "BLUR_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "LAYER_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
       "symbol": "FIDA_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "SUI_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -344,19 +344,13 @@
       "category": "主流"
     },
     {
-      "symbol": "NFP_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
       "symbol": "XVS_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "WOO_USDT",
+      "symbol": "NFP_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -368,13 +362,7 @@
       "category": "主流"
     },
     {
-      "symbol": "OM_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "NIGHT_USDT",
+      "symbol": "PLUME_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -386,13 +374,19 @@
       "category": "主流"
     },
     {
-      "symbol": "PLUME_USDT",
+      "symbol": "PIXEL_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "PIXEL_USDT",
+      "symbol": "NIGHT_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "WOO_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -404,13 +398,13 @@
       "category": "主流"
     },
     {
-      "symbol": "SOL_USDT",
+      "symbol": "RDNT_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "RDNT_USDT",
+      "symbol": "SOL_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -422,13 +416,25 @@
       "category": "主流"
     },
     {
-      "symbol": "BRETT_USDT",
+      "symbol": "OM_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
       "symbol": "TRU_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "BRETT_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "WIF_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -446,25 +452,7 @@
       "category": "主流"
     },
     {
-      "symbol": "WIF_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "ALICE_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
       "symbol": "PEOPLE_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "METIS_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -476,19 +464,25 @@
       "category": "主流"
     },
     {
-      "symbol": "PIPPIN_USDT",
+      "symbol": "METIS_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "MOVR_USDT",
+      "symbol": "ALICE_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
       "symbol": "LIGHT_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "MOVR_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -512,7 +506,7 @@
       "category": "主流"
     },
     {
-      "symbol": "PTB_USDT",
+      "symbol": "PIPPIN_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -525,6 +519,12 @@
     },
     {
       "symbol": "W_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "PTB_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -554,19 +554,7 @@
       "category": "主流"
     },
     {
-      "symbol": "LRC_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
       "symbol": "AIXBT_USDT",
-      "direction": "short",
-      "score": null,
-      "category": "主流"
-    },
-    {
-      "symbol": "CAKE_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -578,13 +566,19 @@
       "category": "主流"
     },
     {
-      "symbol": "MUBARAK_USDT",
+      "symbol": "CAKE_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
     },
     {
-      "symbol": "HIPPO_USDT",
+      "symbol": "LRC_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "MUBARAK_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
@@ -596,7 +590,13 @@
       "category": "主流"
     },
     {
-      "symbol": "MIRA_USDT",
+      "symbol": "HIPPO_USDT",
+      "direction": "short",
+      "score": null,
+      "category": "主流"
+    },
+    {
+      "symbol": "CHILLGUY_USDT",
       "direction": "short",
       "score": null,
       "category": "主流"
