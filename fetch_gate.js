@@ -1,19 +1,20 @@
-// Node.js 18+（GitHub Actions 內建 fetch）
+// Node.js 18+（GitHub Actions 內建 fetch 可用）
 const fs = require("fs");
 
-const MODE = process.env.MODE || "fast";
+const MODE = process.env.MODE || "fast";   // fast / slow
 const INTERVAL = MODE === "fast" ? "1m" : "5m";
 const LIMIT = 60;
 
-// ========= utils =========
+// ================= utils =================
 const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+
 const std = arr => {
   const m = mean(arr);
   const v = arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length;
   return Math.sqrt(v);
 };
 
-// ========= Gate API =========
+// ================= Gate API =================
 async function fetchJSON(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -31,14 +32,14 @@ async function fetchCandles(symbol) {
   );
 }
 
-// ========= 分類 =========
+// ================= 分類 =================
 function classify(atr) {
   if (atr > 0.05) return "瘋狗";
   if (atr > 0.02) return "山寨";
   return "主流";
 }
 
-// ========= 主程式 =========
+// ================= 主程式 =================
 async function run() {
   const tickers = await fetchTickers();
 
@@ -52,26 +53,44 @@ async function run() {
   for (const t of top) {
     try {
       const candles = await fetchCandles(t.contract);
-      if (!candles || candles.length < 20) continue;
+      if (!candles || candles.length < 30) continue;
 
-      // Gate futures：c[2] = close
+      /**
+       * Gate USDT Futures candlestick 正確結構
+       * c[0] timestamp
+       * c[1] volume
+       * c[2] close
+       * c[3] high
+       * c[4] low
+       * c[5] open
+       */
       const closes = candles.map(c => Number(c[2]));
+      const vols   = candles.map(c => Number(c[1]));
 
       const ret = closes.slice(1).map((v, i) =>
         (v - closes[i]) / closes[i]
       );
 
       const rStd = std(ret);
-      if (!isFinite(rStd) || rStd === 0) continue;
+      const vStd = std(vols);
+
+      if (!isFinite(rStd) || !isFinite(vStd) || rStd === 0 || vStd === 0) {
+        continue;
+      }
 
       const rz = (ret.at(-1) - mean(ret)) / rStd;
+      const vz = (vols.at(-1) - mean(vols)) / vStd;
+
       const atr = Math.abs(ret.at(-1));
       const category = classify(atr);
 
-      const score = Math.round(
-        Math.abs(rz) * 80 +
-        atr * 300
-      );
+      let score =
+        Math.abs(rz) * 40 +
+        Math.abs(vz) * 40 +
+        atr * 200;
+
+      if (category === "瘋狗") score *= 0.7;
+      score = Math.round(score);
 
       items.push({
         symbol: t.contract,
@@ -80,8 +99,8 @@ async function run() {
         category
       });
 
-    } catch (e) {
-      // 單一幣錯誤忽略
+    } catch (_) {
+      // 單一幣錯誤直接跳過
     }
   }
 
